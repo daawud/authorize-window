@@ -12,7 +12,10 @@ spl_autoload_register(function ($class_name) use ($dir) {
     if (file_exists($file)) {
         require_once $file;
     }
+    //    echo '<pre>'; print_r($file); die;
 });
+
+$model = new User(Db::getInstance());
 
 $data = $_POST;
 
@@ -21,19 +24,18 @@ if ($data) {
 		$validator = new Validator($_POST);
         $data = $validator->validate(Validator::REGISTRATION);
         if ($data->errors) {
-            $_SESSION['errors'] = $data->errors;
             header('Location: http://localhost/views/register.php');
         }
-        $user = new User(Db::getInstance());
-        $response = $user->signUp($data);
-        if ($response->errors) {
-            $_SESSION['errors'] = $data->errors;
-            header('Location: http://localhost/views/register.php');
-        }
-        $_SESSION['userId'] = $response->id;
-        header('Location: http://localhost/views/cabinet.php');
+        $response = $model->signUp($data);
+
     }
 }
+
+$id = $_SESSION['userId'] ?? null;
+if (!$id) {
+    header('Location: http://localhost');
+}
+$user = $model->getUserById($id);
 
 ?>
 
@@ -48,36 +50,28 @@ if ($data) {
 
 <body>
     <div class="container">
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal">Добро пожаловать, <?=$user->name?></h5>
+            <a class="btn btn-outline-primary" href="http://localhost">Выйти</a>
+        </div>
         <br>
         <form action="" method="post">
             <div class="form-group row">
                 <label for="inputEmail4" class="col-sm-2 col-form-label">Имя</label>
                 <div class="col-sm-10">
-                    <input name="name" type="text" class="form-control" placeholder="Имя">
+                    <input name="name" type="text" class="form-control" placeholder="Имя" value="<?=$user->name?>">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="inputEmail4" class="col-sm-2 col-form-label">Фамилия</label>
                 <div class="col-sm-10">
-                    <input name="lastname" type="text" class="form-control" placeholder="Фамилия">
+                    <input name="lastname" type="text" class="form-control" placeholder="Фамилия" value="<?=$user->lastname?>">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="inputEmail4" class="col-sm-2 col-form-label">Отчество</label>
                 <div class="col-sm-10">
-                    <input name="middlename" type="text" class="form-control" placeholder="Отчество">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputEmail4" class="col-sm-2 col-form-label">Логин</label>
-                <div class="col-sm-10">
-                    <input name="login" type="text" class="form-control" placeholder="Логин">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputEmail4" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-10">
-                    <input name="email" type="email" class="form-control" id="inputEmail4" placeholder="Email">
+                    <input name="middlename" type="text" class="form-control" placeholder="Отчество" value="<?=$user->middlename?>">
                 </div>
             </div>
             <div class="form-group row">
@@ -86,8 +80,7 @@ if ($data) {
                     <input name="password" type="password" class="form-control" id="inputPassword4" placeholder="Пароль">
                 </div>
             </div>
-            <button name="signup" type="submit" class="btn btn-primary">Зарегистрироваться</button>
-            <a href="http://localhost" type="button" class="btn btn-info">Отмена</a>
+            <button name="signup" type="submit" class="btn btn-primary">Обновить профиль</button>
         </form>
     </div>
 </body>

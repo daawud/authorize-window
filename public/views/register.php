@@ -1,5 +1,29 @@
 <?php
 
+use app\User;
+use app\Validator;
+
+session_start();
+
+$dir = realpath(__DIR__ . '/../');
+spl_autoload_register(function ($class_name) use ($dir) {
+    $file = $dir . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name).'.php';
+    if (file_exists($file)) {
+        require_once $file;
+    }
+    //    echo '<pre>'; print_r($file); die;
+});
+
+$data = $_POST;
+
+if ($data) {
+    if (isset($data['signup'])) {
+//        echo '<pre>'; print_r('wewewe'); die;
+		$user = new User();
+		$validator = new Validator($_POST);
+        $data = $validator->validate(Validator::REGISTRATION);
+    }
+}
 
 ?>
 
@@ -41,7 +65,7 @@
                 </div>
             </div>
             <button name="signup" type="submit" class="btn btn-primary">Зарегистрироваться</button>
-            <a href="https://google.com" type="button" class="btn btn-info">Отмена</a>
+            <a href="http://localhost" type="button" class="btn btn-info">Отмена</a>
         </form>
     </div>
 </body>

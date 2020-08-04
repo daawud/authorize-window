@@ -17,23 +17,19 @@ spl_autoload_register(function ($class_name) use ($dir) {
 $data = $_POST;
 
 if ($data) {
-    if (isset($data['signup'])) {
+    if (isset($data['signin'])) {
 		$validator = new Validator($_POST);
-        $data = $validator->validate(Validator::REGISTRATION);
-        if ($data->errors) {
+        $data = $validator->validate(Validator::LOGIN);
+        $user = new User(Db::getInstance());
+        $response = $user->signIn($data);
+        if ($response->errors) {
             $_SESSION['errors'] = $data->errors;
-            header('Location: //localhost/views/register.php');
+            header('Location: //localhost/views/login.php');
         } else {
-            $user = new User(Db::getInstance());
-            $response = $user->signUp($data);
-            if ($response->errors) {
-                $_SESSION['errors'] = $data->errors;
-                header('Location: //localhost/views/register.php');
-            } else {
-                $_SESSION['userId'] = $response->id;
-                header('Location: //localhost/views/cabinet.php');
-            }
+            $_SESSION['userId'] = $response->id;
+            header('Location: //localhost/views/cabinet.php');
         }
+
     }
 }
 
@@ -53,33 +49,9 @@ if ($data) {
         <br>
         <form action="" method="post">
             <div class="form-group row">
-                <label for="inputEmail4" class="col-sm-2 col-form-label">Имя</label>
-                <div class="col-sm-10">
-                    <input name="name" type="text" class="form-control" placeholder="Имя">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputEmail4" class="col-sm-2 col-form-label">Фамилия</label>
-                <div class="col-sm-10">
-                    <input name="lastname" type="text" class="form-control" placeholder="Фамилия">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputEmail4" class="col-sm-2 col-form-label">Отчество</label>
-                <div class="col-sm-10">
-                    <input name="middlename" type="text" class="form-control" placeholder="Отчество">
-                </div>
-            </div>
-            <div class="form-group row">
                 <label for="inputEmail4" class="col-sm-2 col-form-label">Логин</label>
                 <div class="col-sm-10">
                     <input name="login" type="text" class="form-control" placeholder="Логин">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="inputEmail4" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-10">
-                    <input name="email" type="email" class="form-control" id="inputEmail4" placeholder="Email">
                 </div>
             </div>
             <div class="form-group row">
@@ -88,7 +60,7 @@ if ($data) {
                     <input name="password" type="password" class="form-control" id="inputPassword4" placeholder="Пароль">
                 </div>
             </div>
-            <button name="signup" type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <button name="signin" type="submit" class="btn btn-primary">Войти</button>
             <a href="http://localhost" type="button" class="btn btn-info">Отмена</a>
         </form>
     </div>

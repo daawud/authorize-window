@@ -35,7 +35,7 @@ class User
             return $this;
         }
         if ($this->add($attributes)) {
-            $authUser = $this->getUser('email', $email);
+            $authUser = $this->getUserByAttribute('email', $email);
             $this->id = $authUser['id'];
             return $this;
         }
@@ -43,47 +43,53 @@ class User
         return $this;
     }
 
+    public function signIn(RequestData $attributes): User
+    {
+        $userAttributes = $this->getUserByAttribute('login', $attributes->login);
+        if (!$userAttributes) {
+            $this->errors[] = 'Пользователь с таким логином не найден.';
+            return $this;
+        }
+        if (!password_verify($attributes-> password, $userAttributes['password'])) {
+            $this->errors[] = 'Неверный пароль.';
+            return $this;
+        }
+
+        return $this->fillAttributes($userAttributes);
+    }
+
     public function getUserById($id): User
     {
-        $userAttributes = $this->getUser('id', $id);
-        foreach ($userAttributes as $key => $value) {
+        $userAttributes = $this->getUserByAttribute('id', $id);
+
+        return $this->fillAttributes($userAttributes);
+    }
+
+    protected function fillAttributes($attributes)
+    {
+        foreach ($attributes as $key => $value) {
             $this->attributes[$key] = $value;
         }
 
         return $this;
     }
 
-    protected function getUser($attr, $value)
+    protected function getUserByAttribute($attr, $value)
     {
         $preparedSql = $this->db->prepare("SELECT * FROM users WHERE " . $attr . "= :" . $attr);
         $preparedSql->bindParam(':' . $attr, $value);
         $preparedSql->execute();
-        $qResult = $preparedSql->fetch(PDO::FETCH_ASSOC);
 
-        return $qResult;
+        return $preparedSql->fetch(PDO::FETCH_ASSOC);
     }
 
     protected function isUnique($attr, $value)
     {
-        $preparedSql = $this->db->prepare("SELECT * FROM users WHERE " . $attr . "= :" . $attr);
-        $preparedSql->bindParam(':' . $attr, $value);
-        $preparedSql->execute();
-        $qResult = $preparedSql->fetch(PDO::FETCH_ASSOC);
+        $qResult = $this->getUserByAttribute($attr, $value);
         if ($qResult) {
             return false;
         }
-        return true;
-    }
 
-    protected function userExists($email, $password)
-    {
-        $preparedSql = DB::getInstance()->prepare("SELECT * FROM users WHERE email = :email AND pass = :password ");
-        $preparedSql->bindParam(':email', $email);
-        $preparedSql->execute();
-        $qResult = $preparedSql->fetch(PDO::FETCH_ASSOC);
-        if ($qResult) {
-            return false;
-        }
         return true;
     }
 
@@ -94,7 +100,7 @@ class User
         $middlename = $attributes->middlename;
         $email = $attributes->email;
         $login = $attributes->login;
-        $password = md5($attributes->password);
+        $password = password_hash($attributes->password, PASSWORD_DEFAULT);
         $preparedSql = DB::getInstance()
             ->prepare("INSERT INTO users(`name`, lastname, middlename, email, login, password) VALUES(:name, :lastname, :middlename, :email, :login, :password)");
         $preparedSql->bindParam(':name', $name);
@@ -103,6 +109,7 @@ class User
         $preparedSql->bindParam(':email', $email);
         $preparedSql->bindParam(':login', $login);
         $preparedSql->bindParam(':password', $password);
+
         return $preparedSql->execute();
     }
 }

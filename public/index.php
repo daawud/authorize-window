@@ -4,15 +4,17 @@ use app\User;
 
 session_start();
 
-$dir = realpath(__DIR__ . '/../');
-spl_autoload_register(function ($class_name) use ($dir) {
-    $file = $dir . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name).'.php';
-    if (file_exists($file)) {
-        require_once $file;
-    }
-//    echo '<pre>'; print_r($file); die;
-});
-
+//$dir = realpath(__DIR__ . '/../');
+//spl_autoload_register(function ($class_name) use ($dir) {
+//    $file = $dir . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class_name).'.php';
+//    if (file_exists($file)) {
+//        require_once $file;
+//    }
+////    echo '<pre>'; print_r($file); die;
+//});
+if ($_SESSION['userId']) {
+    unset($_SESSION['userId']);
+}
 ?>
 
 
@@ -39,7 +41,7 @@ spl_autoload_register(function ($class_name) use ($dir) {
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
 	<h5 class="my-0 mr-md-auto font-weight-normal">Work</h5>
 	<nav class="my-2 my-md-0 mr-md-3">
-		<a class="p-2 text-dark" href="#">Войти</a>
+		<a class="p-2 text-dark" href="views/login.php">Войти</a>
 	</nav>
 	<a class="btn btn-outline-primary" href="views/register.php">Регистрация</a>
 </div>

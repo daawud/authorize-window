@@ -5,7 +5,9 @@ namespace app;
 class Validator
 {
     const REGISTRATION = 1;
-    
+
+    const LOGIN = 2;
+
     protected $request;
     
     public function __construct($request)
@@ -17,24 +19,26 @@ class Validator
     {
         if ($scenario == static::REGISTRATION) {
             return $this->signUp();
+        } elseif ($scenario == static::LOGIN) {
+            return $this->signIn();
         }
         return true;
     }
 
     protected function signUp()
     {
-        $requestData = new RequestData();
         if (!$this->validateEmail($this->request['email'])) {
+            $requestData = new RequestData();
             $requestData->errors[] = 'Не верный формат почты.';
             return $requestData;
         }
-        foreach ($this->request as $key => $value) {
-            if ($key === 'signup') continue;
-            $requestData->{$key} = htmlspecialchars(trim($value));
-        }
-//        echo '<pre>'; print_r($requestData); die;
-        return $requestData;
 
+        return $this->prepareRequestData('signin');
+    }
+
+    protected function signIn()
+    {
+        return $this->prepareRequestData('signin');
     }
 
     protected function validateEmail($email)
@@ -44,5 +48,16 @@ class Validator
         }else{
             return false;
         }
+    }
+
+    protected function prepareRequestData($action)
+    {
+        $requestData = new RequestData();
+        foreach ($this->request as $key => $value) {
+            if ($key === $action) continue;
+            $requestData->{$key} = htmlspecialchars(trim($value));
+        }
+
+        return $requestData;
     }
 }

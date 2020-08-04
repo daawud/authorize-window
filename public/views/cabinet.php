@@ -4,7 +4,7 @@ use app\Db;
 use app\User;
 use app\Validator;
 
-session_start();
+//session_start();
 
 $dir = realpath(__DIR__ . '/../../');
 spl_autoload_register(function ($class_name) use ($dir) {
@@ -20,11 +20,11 @@ $model = new User(Db::getInstance());
 $data = $_POST;
 
 if ($data) {
-    if (isset($data['signup'])) {
+    if (isset($data['update'])) {
 		$validator = new Validator($_POST);
         $data = $validator->validate(Validator::REGISTRATION);
         if ($data->errors) {
-            header('Location: http://localhost/views/register.php');
+            header('Location: //localhost/views/register.php');
         }
         $response = $model->signUp($data);
 
@@ -33,7 +33,7 @@ if ($data) {
 
 $id = $_SESSION['userId'] ?? null;
 if (!$id) {
-    header('Location: http://localhost');
+    header('Location: //localhost');
 }
 $user = $model->getUserById($id);
 
@@ -80,7 +80,7 @@ $user = $model->getUserById($id);
                     <input name="password" type="password" class="form-control" id="inputPassword4" placeholder="Пароль">
                 </div>
             </div>
-            <button name="signup" type="submit" class="btn btn-primary">Обновить профиль</button>
+            <button name="update" type="submit" class="btn btn-primary">Обновить профиль</button>
         </form>
     </div>
 </body>
